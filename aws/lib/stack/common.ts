@@ -5,26 +5,6 @@ export class Common extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const vpc = new cdk.aws_ec2.Vpc(this, "Vpc", {
-      natGateways: 0,
-    });
-
-    const defaultDatabaseName = "postgres";
-    const dbCluster = new cdk.aws_rds.DatabaseCluster(this, "Database", {
-      vpc,
-      engine: cdk.aws_rds.DatabaseClusterEngine.auroraPostgres({
-        version: cdk.aws_rds.AuroraPostgresEngineVersion.VER_16_3,
-      }),
-      defaultDatabaseName,
-      enableDataApi: true,
-      writer: cdk.aws_rds.ClusterInstance.serverlessV2("Writer", {}),
-      subnetGroup: new cdk.aws_rds.SubnetGroup(this, "SubnetGroup", {
-        vpc,
-        vpcSubnets: { subnetType: cdk.aws_ec2.SubnetType.PRIVATE_ISOLATED },
-        description: "Database Subnet Group",
-      }),
-    });
-
     const frontendFunction = new cdk.aws_lambda.DockerImageFunction(
       this,
       "FrontendFunction",
@@ -33,14 +13,8 @@ export class Common extends cdk.Stack {
         architecture: cdk.aws_lambda.Architecture.ARM_64,
         memorySize: 2048,
         timeout: cdk.Duration.minutes(5),
-        environment: {
-          DATABASE: defaultDatabaseName,
-          SECRET_ARN: dbCluster.secret?.secretArn!,
-          RESOURCE_ARN: dbCluster.clusterArn,
-        },
       }
     );
-    dbCluster.grantDataApiAccess(frontendFunction);
 
     const functionUrl = frontendFunction.addFunctionUrl({
       authType: cdk.aws_lambda.FunctionUrlAuthType.AWS_IAM,
