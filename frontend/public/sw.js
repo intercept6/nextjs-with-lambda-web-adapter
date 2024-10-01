@@ -1,5 +1,5 @@
 self.addEventListener("fetch", async (event) => {
-  if (event.request.method === "POST") {
+  if (event.request.message === "PUT" || event.request.method === "POST") {
     event.respondWith(
       (async function () {
         const originalRequest = event.request;
@@ -12,7 +12,7 @@ self.addEventListener("fetch", async (event) => {
         modifiedRequest.headers.set("x-amz-content-sha256", hash);
 
         return fetch(modifiedRequest);
-      })()
+      })(),
     );
   }
 });
