@@ -1,0 +1,45 @@
+volumes:
+  bashhistory: null
+  postgres-data: null
+  frontend-deps: null
+  aws-deps: null
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - ../.env
+    volumes:
+      - type: bind
+        source: ../..
+        target: /workspaces
+        consistency: cached
+      - type: bind
+        source: ~/.aws
+        target: /home/vscode/.aws
+        consistency: cached
+      - type: volume
+        source: bashhistory
+        target: /commandhistory
+      - type: volume
+        source: frontend-deps
+        target: /workspace/frontend/node_modules
+      - type: volume
+        source: aws-deps
+        target: /workspace/aws/node_modules
+      - type: tmpfs
+        target: /workspace/frontend/.next
+      - type: tmpfs
+        target: /workspace/aws/cdk.out
+  postgres:
+    image: postgres:16.3
+    volumes:
+      - type: volume
+        source: postgres-data
+        target: /var/lib/postgresql/data
+    env_file:
+      - ../.env
+    ports:
+      - 5432:5432

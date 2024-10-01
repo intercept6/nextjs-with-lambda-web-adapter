@@ -1,0 +1,49 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
+{
+  "name": "Next.js with Lambda Web Adapter",
+  // "build": {
+  // 	"dockerfile": "Dockerfile",
+  // 	"args": {
+  // 		"WORKSPACE_FOLDER": "${containerWorkspaceFolder}",
+  // 		"USERNAME": "vscode"
+  // 	}
+  // },
+  "dockerComposeFile": "compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  //   "runArgs": ["--env-file", ".env"],
+  "features": {
+    "ghcr.io/devcontainers/features/aws-cli:1": {},
+    "ghcr.io/devcontainers/features/go:1": {},
+    "ghcr.io/devcontainers/features/node:1": {},
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+  },
+  "mounts": [
+    {
+      "type": "bind",
+      "source": "${localEnv:HOME}${localEnv:USERPROFILE}/.aws",
+      "target": "/home/vscode/.aws"
+    },
+    {
+      "type": "volume",
+      "source": "nwl_bashhistory",
+      "target": "/commandhistory"
+    },
+    {
+      "type": "volume",
+      "source": "nwl_aws_node_modules",
+      "target": "${containerWorkspaceFolder}/aws/node_modules"
+    },
+    {
+      "type": "volume",
+      "source": "nwl_frontend_node_modules",
+      "target": "${containerWorkspaceFolder}/frontend/node_modules"
+    }
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-azuretools.vscode-docker", "esbenp.prettier-vscode"]
+    }
+  }
+}
